@@ -2,3 +2,9 @@
 /.next
 /out
 /build
+
+# shadcn components
+/src/components/theme
+/src/components/ui
+/src/hooks/use-mobile.ts
+/src/lib/utils.ts

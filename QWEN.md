@@ -7,9 +7,9 @@
 ## Commits
 
 - Don't commit unless explicitly asked for it
-- Run the format script (`pnpm format`) before any commit to ensure consistent
-  code style
+- Run the format script (`pnpm format`) before any commit to ensure consistent code style
 - Include a summary of changes in commit messages for better documentation
+  - When doing this summary, avoid analyzing large and complex files such as `*.svg` files and `pnpm-lock.yaml`
 
 ## Comments
 
@@ -21,8 +21,7 @@ Prefer using shadcn components when possible for consistent UI
 
 ## Verification
 
-Avoid starting a development server to verify changes. Usually there's going
-to be a development server already running at port 3000
+Avoid starting a development server to verify changes. Usually there's going to be a development server already running at port 3000
 
 ## **React Component Testing Approach**
 
@@ -701,11 +700,14 @@ describe("Type Safety", () => {
 
 ### **9. Testing Best Practices for .ts Files**
 
-✅ **Test the public API, not internals** ✅ **Cover all branches and edge
-cases** ✅ **Test error conditions explicitly** ✅ **Use descriptive test names
-that explain the scenario** ✅ **Group related tests with nested describe
-blocks** ✅ **Test integration between functions** ✅ **Validate data integrity
-and type safety** ✅ **Include performance tests for critical functions**
+- Test the public API, not internals
+- Cover all branches and edge cases
+- Test error conditions explicitly
+- Use descriptive test names that explain the scenario
+- Group related tests with nested describe blocks
+- Test integration between functions
+- Validate data integrity and type safety
+- Include performance tests for critical functions
 
 ### **10. Common Patterns by Utility Type**
 
