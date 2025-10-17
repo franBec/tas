@@ -2,8 +2,8 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { PageLayout } from "@/components/layout/page-layout";
-import { getRouteNodeByUri } from "@/components/lib/routes";
 import { Button } from "@/components/ui/button";
+import { getRouteNodeByUri } from "@/lib/routes";
 
 export default function Home() {
   const routeNode = getRouteNodeByUri("/");

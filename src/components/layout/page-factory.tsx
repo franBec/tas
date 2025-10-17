@@ -1,4 +1,4 @@
-import { getRouteNodeByUri } from "../lib/routes";
+import { getRouteNodeByUri } from "@/lib/routes";
 import { AreaCard } from "./area-card";
 import { PageLayout } from "./page-layout";
 
