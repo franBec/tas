@@ -3,6 +3,12 @@ import { Geist, Geist_Mono } from "next/font/google";
 
 import "./globals.css";
 
+import { AppFooter } from "@/components/app-footer";
+import { AppHeader } from "@/components/app-header";
+import { AppSidebar } from "@/components/app-sidebar";
+import { ThemeProvider } from "@/components/theme-provider";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -24,11 +30,27 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <SidebarProvider>
+            <AppSidebar />
+            <SidebarInset>
+              <AppHeader />
+              <main className="flex flex-1 flex-col gap-4 p-4 pt-0">
+                {children}
+              </main>
+              <AppFooter />
+            </SidebarInset>
+          </SidebarProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

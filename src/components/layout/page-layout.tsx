@@ -7,12 +7,8 @@ interface PageLayoutProps {
 
 export function PageLayout({ children, className }: PageLayoutProps) {
   return (
-    <div
-      className={cn("min-h-screen bg-background text-foreground", className)}
-    >
-      <div className="py-16 md:py-24">
-        <div className="max-w-7xl mx-auto px-4">{children}</div>
-      </div>
+    <div className={cn("bg-background text-foreground", className)}>
+      <div className="max-w-7xl mx-auto px-4 py-8">{children}</div>
     </div>
   );
 }

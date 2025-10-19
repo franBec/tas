@@ -18,6 +18,10 @@ export interface RouteNode {
   subtitle?: string;
   icon?: React.ComponentType<{ className?: string }>;
   children?: Record<string, RouteNode>;
+  sidebarContent?:
+    | "NAV_MAIN_GROUP_LABEL"
+    | "NAV_MAIN_ITEM"
+    | "NAV_SECONDARY_ITEM";
 }
 
 export const routes: Record<string, RouteNode> = {
@@ -25,6 +29,18 @@ export const routes: Record<string, RouteNode> = {
     uri: "/",
     title: "Municipal Services",
     subtitle: "Your Digital Gateway to Local Government Services",
+  },
+  "/about-author": {
+    uri: "/about-author",
+    title: "About Author",
+    icon: User,
+    sidebarContent: "NAV_SECONDARY_ITEM",
+  },
+  "/about-project": {
+    uri: "/about-project",
+    title: "About Project",
+    icon: FileText,
+    sidebarContent: "NAV_SECONDARY_ITEM",
   },
   "/areas": {
     uri: "/areas",
@@ -37,6 +53,7 @@ export const routes: Record<string, RouteNode> = {
         title: "Administration",
         subtitle: "Administrative tools",
         icon: Users,
+        sidebarContent: "NAV_MAIN_ITEM",
       },
       "/areas/gov": {
         uri: "/areas/gov",
@@ -51,6 +68,7 @@ export const routes: Record<string, RouteNode> = {
             subtitle:
               "Managing municipal finances, infrastructure development, and urban planning initiatives",
             icon: Building,
+            sidebarContent: "NAV_MAIN_ITEM",
           },
           "/areas/gov/public-services": {
             uri: "/areas/gov/public-services",
@@ -58,6 +76,7 @@ export const routes: Record<string, RouteNode> = {
             subtitle:
               "Overseeing public utilities, maintenance services, and urban transportation systems",
             icon: Bus,
+            sidebarContent: "NAV_MAIN_ITEM",
           },
           "/areas/gov/community": {
             uri: "/areas/gov/community",
@@ -65,6 +84,7 @@ export const routes: Record<string, RouteNode> = {
             subtitle:
               "Fostering connections with residents and promoting neighborhood participation",
             icon: Users,
+            sidebarContent: "NAV_MAIN_ITEM",
           },
           "/areas/gov/general": {
             uri: "/areas/gov/general",
@@ -72,6 +92,7 @@ export const routes: Record<string, RouteNode> = {
             subtitle:
               "Coordinating administrative functions and supporting overall municipal operations",
             icon: FileText,
+            sidebarContent: "NAV_MAIN_ITEM",
           },
           "/areas/gov/legal": {
             uri: "/areas/gov/legal",
@@ -79,6 +100,7 @@ export const routes: Record<string, RouteNode> = {
             subtitle:
               "Providing legal counsel and managing institutional relationships",
             icon: Scale,
+            sidebarContent: "NAV_MAIN_ITEM",
           },
           "/areas/gov/council": {
             uri: "/areas/gov/council",
@@ -86,6 +108,7 @@ export const routes: Record<string, RouteNode> = {
             subtitle:
               "Legislative body responsible for policy-making and municipal governance",
             icon: Landmark,
+            sidebarContent: "NAV_MAIN_ITEM",
           },
           "/areas/gov/accounts": {
             uri: "/areas/gov/accounts",
@@ -93,6 +116,7 @@ export const routes: Record<string, RouteNode> = {
             subtitle:
               "Overseeing municipal finances and ensuring proper use of public funds",
             icon: FileText,
+            sidebarContent: "NAV_MAIN_ITEM",
           },
           "/areas/gov/justice": {
             icon: Gavel,
@@ -100,8 +124,10 @@ export const routes: Record<string, RouteNode> = {
             subtitle:
               "Handling minor legal infractions and maintaining local order",
             uri: "/areas/gov/justice",
+            sidebarContent: "NAV_MAIN_ITEM",
           },
         },
+        sidebarContent: "NAV_MAIN_ITEM",
       },
       "/areas/personal": {
         uri: "/areas/personal",
@@ -113,15 +139,19 @@ export const routes: Record<string, RouteNode> = {
             uri: "/areas/personal/profile",
             title: "Profile",
             icon: User,
+            sidebarContent: "NAV_MAIN_ITEM",
           },
           "/areas/personal/notifications": {
             uri: "/areas/personal/notifications",
             title: "Notifications",
             icon: Bell,
+            sidebarContent: "NAV_MAIN_ITEM",
           },
         },
+        sidebarContent: "NAV_MAIN_ITEM",
       },
     },
+    sidebarContent: "NAV_MAIN_GROUP_LABEL",
   },
   "/sign-in": {
     uri: "/sign-in",
@@ -141,10 +171,13 @@ export function getRouteNodeByUri(uri: string) {
   const parts = uri.split("/").filter((part) => part !== "");
   let currentNode: Record<string, RouteNode> | undefined = routes;
   let currentUri = "";
+  let routeNodeNotFoundError = new Error(
+    `Route node not found for URI: ${uri}`
+  );
 
   if (uri === "/") {
     if (!routes["/"]) {
-      throw new Error(`Route node not found for URI: ${uri}`);
+      throw routeNodeNotFoundError;
     }
     return routes["/"];
   }
@@ -152,7 +185,7 @@ export function getRouteNodeByUri(uri: string) {
   for (let i = 0; i < parts.length; i++) {
     currentUri += "/" + parts[i];
     if (!currentNode || !currentNode[currentUri]) {
-      throw new Error(`Route node not found for URI: ${uri}`);
+      throw routeNodeNotFoundError;
     }
 
     if (i === parts.length - 1) {
@@ -161,5 +194,5 @@ export function getRouteNodeByUri(uri: string) {
     currentNode = currentNode[currentUri].children;
   }
 
-  throw new Error(`Route node not found for URI: ${uri}`);
+  throw routeNodeNotFoundError;
 }
