@@ -1,12 +1,15 @@
 import { PageLayout } from "@/components/layout/page-layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { getRouteNodeByUri } from "@/lib/routes";
 
 export default function AboutProjectPage() {
+  const route = getRouteNodeByUri("/about-project");
   return (
     <PageLayout>
       <PageLayout.Header
-        title="About This Project"
-        subtitle="Building better software for municipal services"
+        title={route.title}
+        subtitle={route.subtitle}
+        icon={route.icon}
       />
 
       <div className="space-y-6">
@@ -179,6 +182,26 @@ export default function AboutProjectPage() {
               real-world problems, and using proven technologies, we can
               potentially build maintainable, scalable systems that are a joy to
               work with instead of a constant source of frustration.
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Get Involved</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p>
+              This is an open source project. You can find the source code and
+              contribute on GitHub:{" "}
+              <a
+                href="https://github.com/franBec/tas/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-foreground hover:underline"
+              >
+                https://github.com/franBec/tas/
+              </a>
             </p>
           </CardContent>
         </Card>

@@ -1,6 +1,7 @@
 "use client";
 
-import { ChevronRight, type LucideIcon } from "lucide-react";
+import Link from "next/link";
+import { ChevronRight } from "lucide-react";
 
 import {
   Collapsible,
@@ -30,27 +31,27 @@ function NavMainItem({
   currentPathname,
 }: {
   item: {
-    title: string;
+    title?: string;
     url: string;
-    icon: LucideIcon;
+    icon?: React.ComponentType<{ className?: string }>;
     isActive?: boolean;
     items?: {
-      title: string;
+      title?: string;
       url: string;
     }[];
   };
   currentPathname?: string;
 }) {
-  const { ref, isTruncated } = useTextTruncated(item.title);
+  const { ref, isTruncated } = useTextTruncated(item.title || "");
   const isActive = currentPathname === item.url;
 
   return (
     <Collapsible asChild defaultOpen={item.isActive}>
       <SidebarMenuItem>
         <SidebarMenuButton asChild isActive={isActive}>
-          <a href={item.url}>
-            <item.icon />
-            {isTruncated ? (
+          <Link href={item.url}>
+            {item.icon && <item.icon className="size-4" />}
+            {item.title && isTruncated ? (
               <Tooltip>
                 <TooltipTrigger className="w-full text-left">
                   <span ref={ref}>{item.title}</span>
@@ -60,9 +61,9 @@ function NavMainItem({
                 </TooltipContent>
               </Tooltip>
             ) : (
-              <span ref={ref}>{item.title}</span>
+              item.title && <span ref={ref}>{item.title}</span>
             )}
-          </a>
+          </Link>
         </SidebarMenuButton>
         {item.items?.length ? (
           <>
@@ -76,7 +77,7 @@ function NavMainItem({
               <SidebarMenuSub>
                 {item.items?.map((subItem) => (
                   <NavMainSubItem
-                    key={subItem.title}
+                    key={subItem.title || "nav-item"}
                     subItem={subItem}
                     currentPathname={currentPathname}
                   />
@@ -95,23 +96,23 @@ function NavMainSubItem({
   currentPathname,
 }: {
   subItem: {
-    title: string;
+    title?: string;
     url: string;
   };
   currentPathname?: string;
 }) {
-  const { ref, isTruncated } = useTextTruncated(subItem.title);
+  const { ref, isTruncated } = useTextTruncated(subItem.title || "");
   const isActive = currentPathname === subItem.url;
 
   return (
     <SidebarMenuSubItem>
-      {isTruncated ? (
+      {subItem.title && isTruncated ? (
         <Tooltip>
           <TooltipTrigger className="w-full text-left">
             <SidebarMenuSubButton asChild isActive={isActive}>
-              <a href={subItem.url}>
+              <Link href={subItem.url}>
                 <span ref={ref}>{subItem.title}</span>
-              </a>
+              </Link>
             </SidebarMenuSubButton>
           </TooltipTrigger>
           <TooltipContent side="right" align="center">
@@ -119,11 +120,13 @@ function NavMainSubItem({
           </TooltipContent>
         </Tooltip>
       ) : (
-        <SidebarMenuSubButton asChild isActive={isActive}>
-          <a href={subItem.url}>
-            <span ref={ref}>{subItem.title}</span>
-          </a>
-        </SidebarMenuSubButton>
+        subItem.title && (
+          <SidebarMenuSubButton asChild isActive={isActive}>
+            <Link href={subItem.url}>
+              <span ref={ref}>{subItem.title}</span>
+            </Link>
+          </SidebarMenuSubButton>
+        )
       )}
     </SidebarMenuSubItem>
   );
@@ -135,12 +138,12 @@ export function NavMain({
   currentPathname,
 }: {
   items: {
-    title: string;
+    title?: string;
     url: string;
-    icon: LucideIcon;
+    icon?: React.ComponentType<{ className?: string }>;
     isActive?: boolean;
     items?: {
-      title: string;
+      title?: string;
       url: string;
     }[];
   }[];

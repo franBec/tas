@@ -1,5 +1,5 @@
 import * as React from "react";
-import { type LucideIcon } from "lucide-react";
+import Link from "next/link";
 
 import {
   SidebarGroup,
@@ -15,9 +15,9 @@ export function NavSecondary({
   ...props
 }: {
   items: {
-    title: string;
+    title?: string;
     url: string;
-    icon?: LucideIcon;
+    icon?: React.ComponentType<{ className?: string }>;
   }[];
   currentPathname?: string;
 } & React.ComponentPropsWithoutRef<typeof SidebarGroup>) {
@@ -28,12 +28,12 @@ export function NavSecondary({
           {items.map((item) => {
             const isActive = currentPathname === item.url;
             return (
-              <SidebarMenuItem key={item.title}>
+              <SidebarMenuItem key={item.title || "nav-item"}>
                 <SidebarMenuButton asChild size="sm" isActive={isActive}>
-                  <a href={item.url}>
-                    {item.icon && <item.icon />}
-                    <span>{item.title}</span>
-                  </a>
+                  <Link href={item.url}>
+                    {item.icon && <item.icon className="size-4" />}
+                    {item.title && <span>{item.title}</span>}
+                  </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             );

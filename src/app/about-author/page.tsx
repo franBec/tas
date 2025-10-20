@@ -1,12 +1,15 @@
 import { PageLayout } from "@/components/layout/page-layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { getRouteNodeByUri } from "@/lib/routes";
 
 export default function AboutAuthorPage() {
+  const route = getRouteNodeByUri("/about-author");
   return (
     <PageLayout>
       <PageLayout.Header
-        title="Meet Franco 🐤"
-        subtitle="The developer behind this project"
+        title={route.title}
+        subtitle={route.subtitle}
+        icon={route.icon}
       />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

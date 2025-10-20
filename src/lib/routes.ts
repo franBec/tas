@@ -12,16 +12,19 @@ import {
   Users,
 } from "lucide-react";
 
+export enum SidebarContentType {
+  NAV_MAIN_ROOT = "NAV_MAIN_ROOT",
+  NAV_MAIN_ITEM = "NAV_MAIN_ITEM",
+  NAV_SECONDARY_ITEM = "NAV_SECONDARY_ITEM",
+}
+
 export interface RouteNode {
   uri: string;
   title?: string;
   subtitle?: string;
   icon?: React.ComponentType<{ className?: string }>;
   children?: Record<string, RouteNode>;
-  sidebarContent?:
-    | "NAV_MAIN_GROUP_LABEL"
-    | "NAV_MAIN_ITEM"
-    | "NAV_SECONDARY_ITEM";
+  sidebarContent?: SidebarContentType;
 }
 
 export const routes: Record<string, RouteNode> = {
@@ -32,15 +35,17 @@ export const routes: Record<string, RouteNode> = {
   },
   "/about-author": {
     uri: "/about-author",
-    title: "About Author",
+    title: "About the Author",
+    subtitle: "Meet the developer behind this project",
     icon: User,
-    sidebarContent: "NAV_SECONDARY_ITEM",
+    sidebarContent: SidebarContentType.NAV_SECONDARY_ITEM,
   },
   "/about-project": {
     uri: "/about-project",
-    title: "About Project",
+    title: "About this Project",
+    subtitle: "Building better software for municipal services",
     icon: FileText,
-    sidebarContent: "NAV_SECONDARY_ITEM",
+    sidebarContent: SidebarContentType.NAV_SECONDARY_ITEM,
   },
   "/areas": {
     uri: "/areas",
@@ -53,7 +58,7 @@ export const routes: Record<string, RouteNode> = {
         title: "Administration",
         subtitle: "Administrative tools",
         icon: Users,
-        sidebarContent: "NAV_MAIN_ITEM",
+        sidebarContent: SidebarContentType.NAV_MAIN_ITEM,
       },
       "/areas/gov": {
         uri: "/areas/gov",
@@ -68,7 +73,7 @@ export const routes: Record<string, RouteNode> = {
             subtitle:
               "Managing municipal finances, infrastructure development, and urban planning initiatives",
             icon: Building,
-            sidebarContent: "NAV_MAIN_ITEM",
+            sidebarContent: SidebarContentType.NAV_MAIN_ITEM,
           },
           "/areas/gov/public-services": {
             uri: "/areas/gov/public-services",
@@ -76,7 +81,7 @@ export const routes: Record<string, RouteNode> = {
             subtitle:
               "Overseeing public utilities, maintenance services, and urban transportation systems",
             icon: Bus,
-            sidebarContent: "NAV_MAIN_ITEM",
+            sidebarContent: SidebarContentType.NAV_MAIN_ITEM,
           },
           "/areas/gov/community": {
             uri: "/areas/gov/community",
@@ -84,7 +89,7 @@ export const routes: Record<string, RouteNode> = {
             subtitle:
               "Fostering connections with residents and promoting neighborhood participation",
             icon: Users,
-            sidebarContent: "NAV_MAIN_ITEM",
+            sidebarContent: SidebarContentType.NAV_MAIN_ITEM,
           },
           "/areas/gov/general": {
             uri: "/areas/gov/general",
@@ -92,7 +97,7 @@ export const routes: Record<string, RouteNode> = {
             subtitle:
               "Coordinating administrative functions and supporting overall municipal operations",
             icon: FileText,
-            sidebarContent: "NAV_MAIN_ITEM",
+            sidebarContent: SidebarContentType.NAV_MAIN_ITEM,
           },
           "/areas/gov/legal": {
             uri: "/areas/gov/legal",
@@ -100,7 +105,7 @@ export const routes: Record<string, RouteNode> = {
             subtitle:
               "Providing legal counsel and managing institutional relationships",
             icon: Scale,
-            sidebarContent: "NAV_MAIN_ITEM",
+            sidebarContent: SidebarContentType.NAV_MAIN_ITEM,
           },
           "/areas/gov/council": {
             uri: "/areas/gov/council",
@@ -108,7 +113,7 @@ export const routes: Record<string, RouteNode> = {
             subtitle:
               "Legislative body responsible for policy-making and municipal governance",
             icon: Landmark,
-            sidebarContent: "NAV_MAIN_ITEM",
+            sidebarContent: SidebarContentType.NAV_MAIN_ITEM,
           },
           "/areas/gov/accounts": {
             uri: "/areas/gov/accounts",
@@ -116,7 +121,7 @@ export const routes: Record<string, RouteNode> = {
             subtitle:
               "Overseeing municipal finances and ensuring proper use of public funds",
             icon: FileText,
-            sidebarContent: "NAV_MAIN_ITEM",
+            sidebarContent: SidebarContentType.NAV_MAIN_ITEM,
           },
           "/areas/gov/justice": {
             icon: Gavel,
@@ -124,10 +129,10 @@ export const routes: Record<string, RouteNode> = {
             subtitle:
               "Handling minor legal infractions and maintaining local order",
             uri: "/areas/gov/justice",
-            sidebarContent: "NAV_MAIN_ITEM",
+            sidebarContent: SidebarContentType.NAV_MAIN_ITEM,
           },
         },
-        sidebarContent: "NAV_MAIN_ITEM",
+        sidebarContent: SidebarContentType.NAV_MAIN_ITEM,
       },
       "/areas/personal": {
         uri: "/areas/personal",
@@ -139,19 +144,19 @@ export const routes: Record<string, RouteNode> = {
             uri: "/areas/personal/profile",
             title: "Profile",
             icon: User,
-            sidebarContent: "NAV_MAIN_ITEM",
+            sidebarContent: SidebarContentType.NAV_MAIN_ITEM,
           },
           "/areas/personal/notifications": {
             uri: "/areas/personal/notifications",
             title: "Notifications",
             icon: Bell,
-            sidebarContent: "NAV_MAIN_ITEM",
+            sidebarContent: SidebarContentType.NAV_MAIN_ITEM,
           },
         },
-        sidebarContent: "NAV_MAIN_ITEM",
+        sidebarContent: SidebarContentType.NAV_MAIN_ITEM,
       },
     },
-    sidebarContent: "NAV_MAIN_GROUP_LABEL",
+    sidebarContent: SidebarContentType.NAV_MAIN_ROOT,
   },
   "/sign-in": {
     uri: "/sign-in",
