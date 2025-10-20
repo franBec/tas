@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 import { PageLayout } from "@/components/layout/page-layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getRouteNodeByUri } from "@/lib/routes";
@@ -22,7 +24,7 @@ export default function AboutAuthorPage() {
             </CardHeader>
             <CardContent className="flex flex-col items-center">
               <div className="overflow-hidden w-48 h-48 mb-4 rounded-xl">
-                <img
+                <Image
                   src="/profile-7c91f4959d71daca27a1ef5b25e3dc71.png"
                   alt="Franco Exequiel Becvort"
                   className="w-full h-full object-cover scale-150"

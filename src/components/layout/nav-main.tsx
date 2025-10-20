@@ -26,6 +26,47 @@ import {
 } from "@/components/ui/tooltip";
 import { useTextTruncated } from "@/hooks/use-text-truncated";
 
+function NavMainSubItem({
+  subItem,
+  currentPathname,
+}: {
+  subItem: {
+    title?: string;
+    url: string;
+  };
+  currentPathname?: string;
+}) {
+  const { ref, isTruncated } = useTextTruncated(subItem.title || "");
+  const isActive = currentPathname === subItem.url;
+
+  return (
+    <SidebarMenuSubItem>
+      {subItem.title && isTruncated ? (
+        <Tooltip>
+          <TooltipTrigger className="w-full text-left">
+            <SidebarMenuSubButton asChild isActive={isActive}>
+              <Link href={subItem.url}>
+                <span ref={ref}>{subItem.title}</span>
+              </Link>
+            </SidebarMenuSubButton>
+          </TooltipTrigger>
+          <TooltipContent side="right" align="center">
+            {subItem.title}
+          </TooltipContent>
+        </Tooltip>
+      ) : (
+        subItem.title && (
+          <SidebarMenuSubButton asChild isActive={isActive}>
+            <Link href={subItem.url}>
+              <span ref={ref}>{subItem.title}</span>
+            </Link>
+          </SidebarMenuSubButton>
+        )
+      )}
+    </SidebarMenuSubItem>
+  );
+}
+
 function NavMainItem({
   item,
   currentPathname,
@@ -88,47 +129,6 @@ function NavMainItem({
         ) : null}
       </SidebarMenuItem>
     </Collapsible>
-  );
-}
-
-function NavMainSubItem({
-  subItem,
-  currentPathname,
-}: {
-  subItem: {
-    title?: string;
-    url: string;
-  };
-  currentPathname?: string;
-}) {
-  const { ref, isTruncated } = useTextTruncated(subItem.title || "");
-  const isActive = currentPathname === subItem.url;
-
-  return (
-    <SidebarMenuSubItem>
-      {subItem.title && isTruncated ? (
-        <Tooltip>
-          <TooltipTrigger className="w-full text-left">
-            <SidebarMenuSubButton asChild isActive={isActive}>
-              <Link href={subItem.url}>
-                <span ref={ref}>{subItem.title}</span>
-              </Link>
-            </SidebarMenuSubButton>
-          </TooltipTrigger>
-          <TooltipContent side="right" align="center">
-            {subItem.title}
-          </TooltipContent>
-        </Tooltip>
-      ) : (
-        subItem.title && (
-          <SidebarMenuSubButton asChild isActive={isActive}>
-            <Link href={subItem.url}>
-              <span ref={ref}>{subItem.title}</span>
-            </Link>
-          </SidebarMenuSubButton>
-        )
-      )}
-    </SidebarMenuSubItem>
   );
 }
 

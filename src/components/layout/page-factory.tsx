@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 import { getRouteNodeByUri } from "@/lib/routes";
 import { AreaCard } from "./area-card";
 import { PageLayout } from "./page-layout";
@@ -70,7 +72,13 @@ export function createAuthPage({
 
           <PageLayout.RightColumn>
             <div className="w-full max-w-md">
-              <img src={imageSrc} alt={altText} className="w-full h-auto" />
+              <Image
+                src={imageSrc}
+                alt={altText}
+                className="w-full h-auto"
+                width={500}
+                height={400}
+              />
             </div>
           </PageLayout.RightColumn>
         </PageLayout.TwoColumn>

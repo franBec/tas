@@ -176,7 +176,7 @@ export function getRouteNodeByUri(uri: string) {
   const parts = uri.split("/").filter((part) => part !== "");
   let currentNode: Record<string, RouteNode> | undefined = routes;
   let currentUri = "";
-  let routeNodeNotFoundError = new Error(
+  const routeNodeNotFoundError = new Error(
     `Route node not found for URI: ${uri}`
   );
 

@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -98,10 +99,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <SidebarMenuButton size="lg" asChild>
               <Link href="/">
                 <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
-                  <img
+                  <Image
                     src="/government-fill.svg"
                     alt="Government"
                     className="size-4 invert"
+                    width={16}
+                    height={16}
                   />
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
