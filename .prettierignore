@@ -2,6 +2,7 @@
 /.next
 /out
 /build
+pnpm-lock.yaml
 
 # shadcn components
 /src/components/theme

@@ -7,6 +7,7 @@
 ## Commits
 
 - Don't commit unless explicitly asked for it
+- Don't push
 - Run the format script (`pnpm format`) before any commit to ensure consistent code style
 - Include a summary of changes in commit messages for better documentation
   - When doing this summary, avoid analyzing large and complex files such as `*.svg` files and `pnpm-lock.yaml`

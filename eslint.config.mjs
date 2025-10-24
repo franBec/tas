@@ -74,6 +74,15 @@ export default [
       files: ["**/*.+(ts|tsx)"],
     })),
   {
+    files: ["**/*.test.+(ts|tsx)"],
+    rules: {
+      "@next/next/no-img-element": "off",
+      "jsx-a11y/alt-text": "off",
+      "react/display-name": "off",
+      "@typescript-eslint/no-unused-vars": "off",
+    },
+  },
+  {
     files: ["**/*.+(ts|tsx)"],
     plugins: {
       "@typescript-eslint": typescriptEslintEslintPlugin,
