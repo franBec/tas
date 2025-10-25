@@ -26,10 +26,13 @@ export function NavSecondary({
       <SidebarGroupContent>
         <SidebarMenu>
           {items.map((item) => {
-            const isActive = currentPathname === item.url;
             return (
-              <SidebarMenuItem key={item.title || "nav-item"}>
-                <SidebarMenuButton asChild size="sm" isActive={isActive}>
+              <SidebarMenuItem key={item.url}>
+                <SidebarMenuButton
+                  asChild
+                  size="sm"
+                  isActive={currentPathname === item.url}
+                >
                   <Link href={item.url}>
                     {item.icon && <item.icon className="size-4" />}
                     {item.title && <span>{item.title}</span>}

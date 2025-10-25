@@ -100,5 +100,23 @@ describe("routes", () => {
       expect(() => getRouteNodeByUri("/areas/gov")).not.toThrow(); // /areas/gov is a valid node
       expect(getRouteNodeByUri("/areas/gov")).toBeDefined();
     });
+
+    it("should throw an error for empty string URI", () => {
+      expect(() => getRouteNodeByUri("")).toThrow(
+        "Route node not found for URI: "
+      );
+    });
+
+    it("should throw an error for URI with only slashes", () => {
+      expect(() => getRouteNodeByUri("//")).toThrow(
+        "Route node not found for URI: //"
+      );
+    });
+
+    it("should throw an error for URI with multiple trailing slashes", () => {
+      expect(() => getRouteNodeByUri("///")).toThrow(
+        "Route node not found for URI: ///"
+      );
+    });
   });
 });

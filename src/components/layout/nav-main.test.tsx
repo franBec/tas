@@ -78,11 +78,79 @@ vi.mock("@/components/ui/sidebar", () => ({
   ),
 }));
 
-vi.mock("@/hooks/use-text-truncated", () => ({
-  useTextTruncated: vi.fn(() => ({
-    ref: { current: null },
-    isTruncated: false,
-  })),
+// Mock next/link
+vi.mock("next/link", () => ({
+  default: ({
+    href,
+    children,
+  }: {
+    href: string;
+    children: React.ReactNode;
+  }) => <a href={href}>{children}</a>,
+}));
+
+// Mock lucide-react
+vi.mock("lucide-react", () => ({
+  ChevronRight: () => <svg data-testid="chevron-right" />,
+}));
+
+// Mock UI components
+vi.mock("@/components/ui/collapsible", () => ({
+  Collapsible: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="collapsible">{children}</div>
+  ),
+  CollapsibleTrigger: ({ children }: { children: React.ReactNode }) => (
+    <button data-testid="collapsible-trigger">{children}</button>
+  ),
+  CollapsibleContent: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="collapsible-content">{children}</div>
+  ),
+}));
+
+vi.mock("@/components/ui/sidebar", () => ({
+  SidebarGroup: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="sidebar-group">{children}</div>
+  ),
+  SidebarGroupLabel: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="sidebar-group-label">{children}</div>
+  ),
+  SidebarMenu: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="sidebar-menu">{children}</div>
+  ),
+  SidebarMenuItem: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="sidebar-menu-item">{children}</div>
+  ),
+  SidebarMenuButton: ({
+    children,
+    isActive,
+  }: {
+    children: React.ReactNode;
+    isActive?: boolean;
+  }) => (
+    <div data-testid="sidebar-menu-button" data-active={isActive}>
+      {children}
+    </div>
+  ),
+  SidebarMenuAction: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="sidebar-menu-action">{children}</div>
+  ),
+  SidebarMenuSub: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="sidebar-menu-sub">{children}</div>
+  ),
+  SidebarMenuSubItem: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="sidebar-menu-sub-item">{children}</div>
+  ),
+  SidebarMenuSubButton: ({
+    children,
+    isActive,
+  }: {
+    children: React.ReactNode;
+    isActive?: boolean;
+  }) => (
+    <div data-testid="sidebar-menu-sub-button" data-active={isActive}>
+      {children}
+    </div>
+  ),
 }));
 
 const MockIcon = () => <svg data-testid="mock-icon" />;
@@ -163,6 +231,31 @@ describe("NavMain", () => {
           .closest('[data-testid="sidebar-menu-item"]')
           ?.querySelector('[data-testid="collapsible-trigger"]')
       ).toBeNull();
+    });
+
+    it("should open collapsible when item is active", () => {
+      render(
+        <NavMain
+          items={[{ ...mockItems[0], isActive: true }]}
+          groupLabel="Test Group"
+          currentPathname="/item-1"
+        />
+      );
+
+      expect(screen.getByTestId("collapsible")).toBeInTheDocument();
+    });
+
+    it("should not render sub-items if items is an empty array", () => {
+      render(
+        <NavMain
+          items={[{ ...mockItems[0], items: [] }]}
+          groupLabel="Test Group"
+          currentPathname="/item-1"
+        />
+      );
+      expect(
+        screen.queryByTestId("collapsible-content")
+      ).not.toBeInTheDocument();
     });
   });
 

@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { AppSidebar } from "./app-sidebar";
 
@@ -73,83 +73,315 @@ vi.mock("@/components/layout/nav-secondary", () => ({
   ),
 }));
 
-// Mock routes
-vi.mock("@/lib/routes", () => ({
-  SidebarContentType: {
-    NAV_MAIN_ROOT: "NAV_MAIN_ROOT",
-    NAV_MAIN_ITEM: "NAV_MAIN_ITEM",
-    NAV_SECONDARY_ITEM: "NAV_SECONDARY_ITEM",
-  },
-  routes: {
-    "/": {
-      uri: "/",
-      title: "Home",
-      sidebarContent: "NAV_MAIN_ROOT",
-      children: {
-        "/child": {
-          uri: "/child",
-          title: "Child",
-          sidebarContent: "NAV_MAIN_ITEM",
-        },
-      },
-    },
-    "/secondary": {
-      uri: "/secondary",
-      title: "Secondary",
-      sidebarContent: "NAV_SECONDARY_ITEM",
-    },
-  },
-}));
-
 describe("AppSidebar", () => {
-  it("should render the sidebar with header, content, and footer", () => {
-    render(<AppSidebar />);
-    expect(screen.getByTestId("sidebar")).toBeInTheDocument();
-    expect(screen.getByTestId("sidebar-header")).toBeInTheDocument();
-    expect(screen.getByTestId("sidebar-content")).toBeInTheDocument();
-    expect(screen.getByTestId("sidebar-footer")).toBeInTheDocument();
+  beforeEach(() => {
+    vi.resetModules();
   });
 
-  it("should render the header with logo and title", () => {
-    render(<AppSidebar />);
-    const image = screen.getByTestId("next-image");
-    expect(image).toHaveAttribute("src", "/government-fill.svg");
-    expect(image).toHaveAttribute("alt", "Government");
-
-    expect(screen.getByText("Municipal Services")).toBeInTheDocument();
-    expect(screen.getByText("San Luis")).toBeInTheDocument();
+  afterEach(() => {
+    vi.clearAllMocks();
   });
 
-  it("should render NavMain with correct props", () => {
-    render(<AppSidebar />);
-    const navMain = screen.getByTestId("nav-main");
-    expect(navMain).toBeInTheDocument();
-    const props = JSON.parse(navMain.textContent!);
-    expect(props.groupLabel).toBe("Home");
-    expect(props.items).toEqual([
-      {
-        title: "Child",
-        url: "/child",
-        icon: undefined,
-        items: [],
-      },
-    ]);
-    expect(props.currentPathname).toBe("/mock-path");
+  describe("Rendering", () => {
+    it("should render the sidebar with header, content, and footer", () => {
+      render(<AppSidebar />);
+      expect(screen.getByTestId("sidebar")).toBeInTheDocument();
+      expect(screen.getByTestId("sidebar-header")).toBeInTheDocument();
+      expect(screen.getByTestId("sidebar-content")).toBeInTheDocument();
+      expect(screen.getByTestId("sidebar-footer")).toBeInTheDocument();
+    });
+
+    it("should render the header with logo and title", () => {
+      render(<AppSidebar />);
+      const image = screen.getByTestId("next-image");
+      expect(image).toHaveAttribute("src", "/government-fill.svg");
+      expect(image).toHaveAttribute("alt", "Government");
+
+      expect(screen.getByText("Municipal Services")).toBeInTheDocument();
+      expect(screen.getByText("San Luis")).toBeInTheDocument();
+    });
+
+    it("should display the correct version", () => {
+      render(<AppSidebar />);
+      expect(screen.getByText("Version 0.0.0-test")).toBeInTheDocument();
+    });
   });
 
-  it("should render NavSecondary with correct props", () => {
-    render(<AppSidebar />);
-    const navSecondary = screen.getByTestId("nav-secondary");
-    expect(navSecondary).toBeInTheDocument();
-    const props = JSON.parse(navSecondary.textContent!);
-    expect(props.items).toEqual([
-      { title: "Secondary", url: "/secondary", icon: undefined },
-    ]);
-    expect(props.currentPathname).toBe("/mock-path");
-  });
+  describe("Navigation Content", () => {
+    it("should render NavMain and NavSecondary with correct props", async () => {
+      vi.doMock("@/lib/routes", () => ({
+        SidebarContentType: {
+          NAV_MAIN_ROOT: "NAV_MAIN_ROOT",
+          NAV_MAIN_ITEM: "NAV_MAIN_ITEM",
+          NAV_SECONDARY_ITEM: "NAV_SECONDARY_ITEM",
+        },
+        routes: {
+          "/": {
+            uri: "/",
+            title: "Home",
+            sidebarContent: "NAV_MAIN_ROOT",
+            children: {
+              "/child": {
+                uri: "/child",
+                title: "Child",
+                sidebarContent: "NAV_MAIN_ITEM",
+              },
+            },
+          },
+          "/secondary": {
+            uri: "/secondary",
+            title: "Secondary",
+            sidebarContent: "NAV_SECONDARY_ITEM",
+          },
+        },
+      }));
 
-  it("should display the correct version", () => {
-    render(<AppSidebar />);
-    expect(screen.getByText("Version 0.0.0-test")).toBeInTheDocument();
+      const { AppSidebar: AppSidebarWithMocks } = await import("./app-sidebar");
+      render(<AppSidebarWithMocks />);
+
+      const navMain = screen.getByTestId("nav-main");
+      expect(navMain).toBeInTheDocument();
+      const navMainProps = JSON.parse(navMain.textContent!);
+      expect(navMainProps.groupLabel).toBe("Home");
+      expect(navMainProps.items).toEqual([
+        {
+          title: "Child",
+          url: "/child",
+          icon: undefined,
+          items: [],
+        },
+      ]);
+      expect(navMainProps.currentPathname).toBe("/mock-path");
+
+      const navSecondary = screen.getByTestId("nav-secondary");
+      expect(navSecondary).toBeInTheDocument();
+      const navSecondaryProps = JSON.parse(navSecondary.textContent!);
+      expect(navSecondaryProps.items).toEqual([
+        { title: "Secondary", url: "/secondary", icon: undefined },
+      ]);
+      expect(navSecondaryProps.currentPathname).toBe("/mock-path");
+    });
+
+    it("should not render NavMain if navMainRoot is not found", async () => {
+      vi.doMock("@/lib/routes", () => ({
+        SidebarContentType: {
+          NAV_MAIN_ROOT: "NAV_MAIN_ROOT",
+          NAV_MAIN_ITEM: "NAV_MAIN_ITEM",
+          NAV_SECONDARY_ITEM: "NAV_SECONDARY_ITEM",
+        },
+        routes: {
+          "/secondary": {
+            uri: "/secondary",
+            title: "Secondary",
+            sidebarContent: "NAV_SECONDARY_ITEM",
+          },
+        },
+      }));
+
+      const { AppSidebar: AppSidebarWithMocks } = await import("./app-sidebar");
+      render(<AppSidebarWithMocks />);
+      expect(screen.queryByTestId("nav-main")).not.toBeInTheDocument();
+    });
+
+    it("should filter out grandchildren that are not NAV_MAIN_ITEM", async () => {
+      vi.doMock("@/lib/routes", () => ({
+        SidebarContentType: {
+          NAV_MAIN_ROOT: "NAV_MAIN_ROOT",
+          NAV_MAIN_ITEM: "NAV_MAIN_ITEM",
+          NAV_SECONDARY_ITEM: "NAV_SECONDARY_ITEM",
+        },
+        routes: {
+          "/": {
+            uri: "/",
+            title: "Home",
+            sidebarContent: "NAV_MAIN_ROOT",
+            children: {
+              "/child": {
+                uri: "/child",
+                title: "Child",
+                sidebarContent: "NAV_MAIN_ITEM",
+                children: {
+                  "/grandchild": {
+                    uri: "/grandchild",
+                    title: "Grandchild",
+                    sidebarContent: "NAV_MAIN_ITEM",
+                  },
+                  "/filtered-grandchild": {
+                    uri: "/filtered-grandchild",
+                    title: "Filtered Grandchild",
+                    sidebarContent: "OTHER_TYPE",
+                  },
+                },
+              },
+            },
+          },
+        },
+      }));
+
+      const { AppSidebar: AppSidebarWithMocks } = await import("./app-sidebar");
+      render(<AppSidebarWithMocks />);
+      const navMain = screen.getByTestId("nav-main");
+      const props = JSON.parse(navMain.textContent!);
+      expect(props.items[0].items).toEqual([
+        {
+          title: "Grandchild",
+          url: "/grandchild",
+        },
+      ]);
+    });
+
+    it("should handle child with empty children object", async () => {
+      vi.doMock("@/lib/routes", () => ({
+        SidebarContentType: {
+          NAV_MAIN_ROOT: "NAV_MAIN_ROOT",
+          NAV_MAIN_ITEM: "NAV_MAIN_ITEM",
+        },
+        routes: {
+          "/": {
+            uri: "/",
+            title: "Home",
+            sidebarContent: "NAV_MAIN_ROOT",
+            children: {
+              "/child": {
+                uri: "/child",
+                title: "Child",
+                sidebarContent: "NAV_MAIN_ITEM",
+                children: {},
+              },
+            },
+          },
+        },
+      }));
+
+      const { AppSidebar: AppSidebarWithMocks } = await import("./app-sidebar");
+      render(<AppSidebarWithMocks />);
+      const navMain = screen.getByTestId("nav-main");
+      const props = JSON.parse(navMain.textContent!);
+
+      expect(props.items).toEqual([
+        {
+          title: "Child",
+          url: "/child",
+          icon: undefined,
+          items: [],
+        },
+      ]);
+    });
+
+    it("should handle navMainRoot without children", async () => {
+      vi.doMock("@/lib/routes", () => ({
+        SidebarContentType: {
+          NAV_MAIN_ROOT: "NAV_MAIN_ROOT",
+          NAV_MAIN_ITEM: "NAV_MAIN_ITEM",
+          NAV_SECONDARY_ITEM: "NAV_SECONDARY_ITEM",
+        },
+        routes: {
+          "/": {
+            uri: "/",
+            title: "Home",
+            sidebarContent: "NAV_MAIN_ROOT",
+            // No children property
+          },
+        },
+      }));
+
+      const { AppSidebar: AppSidebarWithMocks } = await import("./app-sidebar");
+      render(<AppSidebarWithMocks />);
+
+      const navMain = screen.getByTestId("nav-main");
+      const props = JSON.parse(navMain.textContent!);
+      expect(props.groupLabel).toBe("Home");
+      expect(props.items).toEqual([]);
+    });
+
+    it("should use empty string fallback when grandchild title is undefined", async () => {
+      vi.doMock("@/lib/routes", () => ({
+        SidebarContentType: {
+          NAV_MAIN_ROOT: "NAV_MAIN_ROOT",
+          NAV_MAIN_ITEM: "NAV_MAIN_ITEM",
+        },
+        routes: {
+          "/": {
+            uri: "/",
+            title: "Home",
+            sidebarContent: "NAV_MAIN_ROOT",
+            children: {
+              "/child": {
+                uri: "/child",
+                title: "Child",
+                sidebarContent: "NAV_MAIN_ITEM",
+                children: {
+                  "/grandchild": {
+                    uri: "/grandchild",
+                    sidebarContent: "NAV_MAIN_ITEM",
+                  },
+                },
+              },
+            },
+          },
+        },
+      }));
+
+      const { AppSidebar: AppSidebarWithMocks } = await import("./app-sidebar");
+      render(<AppSidebarWithMocks />);
+
+      const navMain = screen.getByTestId("nav-main");
+      const props = JSON.parse(navMain.textContent!);
+      expect(props.items[0].items).toEqual([
+        {
+          title: "",
+          url: "/grandchild",
+        },
+      ]);
+    });
+
+    it("should skip children that are not NAV_MAIN_ITEM", async () => {
+      vi.doMock("@/lib/routes", () => ({
+        SidebarContentType: {
+          NAV_MAIN_ROOT: "NAV_MAIN_ROOT",
+          NAV_MAIN_ITEM: "NAV_MAIN_ITEM",
+          NAV_SECONDARY_ITEM: "NAV_SECONDARY_ITEM",
+        },
+        routes: {
+          "/": {
+            uri: "/",
+            title: "Home",
+            sidebarContent: "NAV_MAIN_ROOT",
+            children: {
+              "/child1": {
+                uri: "/child1",
+                title: "Child 1",
+                sidebarContent: "NAV_MAIN_ITEM",
+              },
+              "/child2": {
+                uri: "/child2",
+                title: "Child 2",
+                sidebarContent: "OTHER_TYPE",
+              },
+              "/child3": {
+                uri: "/child3",
+                title: "Child 3",
+                sidebarContent: "NAV_SECONDARY_ITEM",
+              },
+            },
+          },
+        },
+      }));
+
+      const { AppSidebar: AppSidebarWithMocks } = await import("./app-sidebar");
+      render(<AppSidebarWithMocks />);
+
+      const navMain = screen.getByTestId("nav-main");
+      const props = JSON.parse(navMain.textContent!);
+
+      expect(props.items).toEqual([
+        {
+          title: "Child 1",
+          url: "/child1",
+          icon: undefined,
+          items: [],
+        },
+      ]);
+    });
   });
 });

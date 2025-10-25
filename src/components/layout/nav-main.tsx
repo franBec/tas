@@ -118,7 +118,7 @@ function NavMainItem({
               <SidebarMenuSub>
                 {item.items?.map((subItem) => (
                   <NavMainSubItem
-                    key={subItem.title || "nav-item"}
+                    key={subItem.url}
                     subItem={subItem}
                     currentPathname={currentPathname}
                   />
