@@ -1,0 +1,34 @@
+# Based of https://github.com/adityasinghcodes/nextjs-monitoring/blob/main/docker-compose.yml
+services:
+  grafana:
+    container_name: grafana
+    image: grafana/grafana:11.3.0
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin_user
+      - GF_SECURITY_ADMIN_PASSWORD=admin_password
+    volumes:
+      - grafana-storage:/var/lib/grafana
+    networks:
+      - monitoring
+
+  prometheus:
+    container_name: prometheus
+    image: prom/prometheus:v3.0.1
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-storage:/prometheus
+    networks:
+      - monitoring
+
+networks:
+  monitoring:
+    name: monitoring
+    driver: bridge
+
+volumes:
+  grafana-storage:
+  prometheus-storage:

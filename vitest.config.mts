@@ -23,6 +23,7 @@ export default defineConfig({
         // Infrastructure
         "**/.{idea,git,cache,output,temp}/**",
         "**/public/**",
+        "**/src/instrumentation.ts",
 
         // Next.js App Router
         "**/src/app/**/page.tsx",
