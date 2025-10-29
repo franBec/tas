@@ -1,0 +1,1 @@
+OTEL_LOG_LEVEL=info;OTEL_SERVICE_NAME="next-app"

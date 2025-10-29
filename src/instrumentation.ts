@@ -15,6 +15,7 @@ export async function register() {
     const { Registry, collectDefaultMetrics } = await import("prom-client");
     const pino = (await import("pino")).default;
     const pinoLoki = (await import("pino-loki")).default;
+    const { registerOTel } = await import("@vercel/otel");
 
     //prometheus initialization
     const prometheusRegistry = new Registry();
@@ -34,5 +35,8 @@ export async function register() {
         labels: { app: "next-app" }, // Crucial label for querying in Grafana
       })
     );
+
+    //otel initialization
+    registerOTel();
   }
 }
