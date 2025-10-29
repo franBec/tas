@@ -7,11 +7,14 @@ declare global {
         registry: any;
       }
     | undefined;
+  var logger: any | undefined;
 }
 
 export async function register() {
   if (process.env.NEXT_RUNTIME === "nodejs") {
     const { Registry, collectDefaultMetrics } = await import("prom-client");
+    const pino = (await import("pino")).default;
+    const pinoLoki = (await import("pino-loki")).default;
 
     //prometheus initialization
     const prometheusRegistry = new Registry();
@@ -21,5 +24,15 @@ export async function register() {
     globalThis.metrics = {
       registry: prometheusRegistry,
     };
+
+    //loki initialization
+    globalThis.logger = pino(
+      pinoLoki({
+        host: "http://localhost:3100", // Connects to the loki container via localhost:3100
+        batching: true,
+        interval: 5,
+        labels: { app: "next-app" }, // Crucial label for querying in Grafana
+      })
+    );
   }
 }
