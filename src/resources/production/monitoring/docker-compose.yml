@@ -1,0 +1,130 @@
+services:
+  grafana:
+    image: grafana/grafana:11.4.0
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GF_ADMIN_USER:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${GF_ADMIN_PASSWORD}
+    volumes:
+      - grafana-storage:/var/lib/grafana
+    ports:
+      - "3001:3000"
+
+  prometheus:
+    image: prom/prometheus:v3.0.1
+    volumes:
+      - prometheus-storage:/prometheus
+    configs:
+      - source: prometheus_config
+        target: /etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+
+  loki:
+    image: grafana/loki:2.9.2
+    configs:
+      - source: loki_config
+        target: /etc/loki/local-config.yml
+    command: -config.file=/etc/loki/local-config.yml
+    volumes:
+      - loki-storage:/loki
+    ports:
+      - "3100:3100"
+
+  otel-collector:
+    image: otel/opentelemetry-collector:0.115.0
+    restart: always
+    command: ["--config=/etc/otel-collector-config.yml"]
+    configs:
+      - source: otel_config
+        target: /etc/otel-collector-config.yml
+    ports:
+      - "4317:4317"
+      - "4318:4318"
+
+  zipkin:
+    image: openzipkin/zipkin:3.4.2
+    ports:
+      - "9411:9411"
+
+configs:
+  prometheus_config:
+    content: |
+      scrape_configs:
+        - job_name: "next-app"
+          static_configs:
+            - targets: ["tas-app:3000"]
+          metrics_path: "/api/metrics"
+          scrape_interval: 15s
+
+  loki_config:
+    content: |
+      auth_enabled: false
+      server:
+        http_listen_port: 3100
+        grpc_listen_port: 9096
+      common:
+        path_prefix: /loki
+        storage:
+          filesystem:
+            chunks_directory: /loki/chunks
+            rules_directory: /loki/rules
+        replication_factor: 1
+        ring:
+          kvstore:
+            store: inmemory
+      schema_config:
+        configs:
+          - from: 2020-10-24
+            store: tsdb
+            object_store: filesystem
+            schema: v13
+            index:
+              prefix: index_
+              period: 24h
+      limits_config:
+        retention_period: 672h
+        ingestion_rate_mb: 10
+        ingestion_burst_size_mb: 20
+      ruler:
+        storage:
+          type: local
+          local:
+            directory: /loki/rules
+
+  otel_config:
+    content: |
+      receivers:
+        otlp:
+          protocols:
+            grpc:
+              endpoint: "0.0.0.0:4317"
+            http:
+              endpoint: "0.0.0.0:4318"
+      processors:
+        batch:
+          timeout: 1s
+          send_batch_size: 1024
+      exporters:
+        zipkin:
+          endpoint: "http://zipkin:9411/api/v2/spans"
+          format: proto
+        debug:
+          verbosity: detailed
+      extensions:
+        health_check:
+        pprof:
+          endpoint: :1888
+        zpages:
+          endpoint: :55679
+      service:
+        extensions: [pprof, zpages, health_check]
+        pipelines:
+          traces:
+            receivers: [otlp]
+            processors: [batch]
+            exporters: [zipkin, debug]
+
+volumes:
+  grafana-storage:
+  prometheus-storage:
+  loki-storage:

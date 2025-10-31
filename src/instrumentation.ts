@@ -1,6 +1,4 @@
 // Based of https://github.com/adityasinghcodes/nextjs-monitoring/blob/main/instrumentation.ts
-// Node.js-specific imports are moved into dynamic imports within runtime checks
-// Prevent Edge runtime from trying to import Node.js-specific modules
 declare global {
   var metrics:
     | {
@@ -29,10 +27,13 @@ export async function register() {
     //loki initialization
     globalThis.logger = pino(
       pinoLoki({
-        host: "http://localhost:3100", // Connects to the loki container via localhost:3100
+        host: process.env.LOKI_HOST || "http://localhost:3100",
         batching: true,
         interval: 5,
-        labels: { app: "next-app" }, // Crucial label for querying in Grafana
+        labels: {
+          app: process.env.OTEL_SERVICE_NAME || "next-app",
+          environment: process.env.NODE_ENV || "development",
+        },
       })
     );
 
