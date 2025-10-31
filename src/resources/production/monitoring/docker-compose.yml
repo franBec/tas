@@ -8,6 +8,10 @@ services:
       - grafana-storage:/var/lib/grafana
     ports:
       - "3001:3000"
+    networks:
+      coolify:
+        aliases:
+          - grafana
 
   prometheus:
     image: prom/prometheus:v3.0.1
@@ -18,6 +22,10 @@ services:
         target: /etc/prometheus/prometheus.yml
     ports:
       - "9090:9090"
+    networks:
+      coolify:
+        aliases:
+          - prometheus
 
   loki:
     image: grafana/loki:2.9.2
@@ -29,6 +37,10 @@ services:
       - loki-storage:/loki
     ports:
       - "3100:3100"
+    networks:
+      coolify:
+        aliases:
+          - loki
 
   otel-collector:
     image: otel/opentelemetry-collector:0.115.0
@@ -40,19 +52,31 @@ services:
     ports:
       - "4317:4317"
       - "4318:4318"
+    networks:
+      coolify:
+        aliases:
+          - otel-collector
 
   zipkin:
     image: openzipkin/zipkin:3.4.2
     ports:
       - "9411:9411"
+    networks:
+      coolify:
+        aliases:
+          - zipkin
 
+networks:
+  coolify:
+    external: true
+    name: coolify
 configs:
   prometheus_config:
     content: |
       scrape_configs:
         - job_name: "next-app"
           static_configs:
-            - targets: ["tas-app:3000"]
+            - targets: ["next-app:3000"]
           metrics_path: "/api/metrics"
           scrape_interval: 15s
 
