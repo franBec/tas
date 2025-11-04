@@ -1,0 +1,242 @@
+services:
+  grafana:
+    container_name: grafana
+    image: grafana/grafana:11.4.0
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin_user
+      - GF_SECURITY_ADMIN_PASSWORD=admin_password
+    volumes:
+      - grafana-storage:/var/lib/grafana
+      - ./provisioning:/etc/grafana/provisioning
+    configs:
+      - source: grafana_datasources
+        target: /etc/grafana/provisioning/datasources/datasources.yml
+    networks:
+      - monitoring
+
+  prometheus:
+    container_name: prometheus
+    image: prom/prometheus:v3.0.1
+    ports:
+      - "9090:9090"
+    volumes:
+      - prometheus-storage:/prometheus
+    configs:
+      - source: prometheus_config
+        target: /etc/prometheus/prometheus.yml
+    networks:
+      - monitoring
+
+  loki:
+    container_name: loki
+    image: grafana/loki:2.9.2
+    ports:
+      - "3100:3100"
+    configs:
+      - source: loki_config
+        target: /etc/loki/local-config.yml
+    command: -config.file=/etc/loki/local-config.yml
+    volumes:
+      - loki-storage:/loki
+    networks:
+      - monitoring
+
+  tempo:
+    container_name: tempo
+    image: grafana/tempo:2.6.1
+    user: "root" # Local dev shortcut for permissions
+    command: ["-config.file=/etc/tempo.yml"]
+    configs:
+      - source: tempo_config
+        target: /etc/tempo.yml
+    volumes:
+      - tempo-storage:/var/tempo
+    ports:
+      - "3200:3200" # Tempo HTTP
+      - "4317" # OTLP gRPC (internal)
+    networks:
+      - monitoring
+
+  otel-collector:
+    container_name: otel-collector
+    image: otel/opentelemetry-collector:0.115.0
+    restart: always
+    command: ["--config=/etc/otel-collector-config.yml"]
+    configs:
+      - source: otel_config
+        target: /etc/otel-collector-config.yml
+    ports:
+      - "4317:4317" # OTLP gRPC receiver
+      - "4318:4318" # OTLP HTTP receiver
+    networks:
+      - monitoring
+
+networks:
+  monitoring:
+    name: monitoring
+    driver: bridge
+
+volumes:
+  grafana-storage:
+  prometheus-storage:
+  loki-storage:
+  tempo-storage:
+
+configs:
+  prometheus_config:
+    content: |
+      # Scrape metrics from Next.js application
+      scrape_configs:
+        - job_name: "next-app"
+          static_configs:
+            # Using host.docker.internal to access host machine from Docker
+            - targets: ["host.docker.internal:3000"]
+          metrics_path: "/api/metrics"
+          scrape_interval: 15s
+  loki_config:
+    content: |
+      # Disable authentication for local development
+      auth_enabled: false
+      server:
+        http_listen_port: 3100
+        grpc_listen_port: 9096
+      common:
+        path_prefix: /loki
+        storage:
+          filesystem:
+            chunks_directory: /loki/chunks
+            rules_directory: /loki/rules
+        replication_factor: 1
+        ring:
+          kvstore:
+            store: inmemory
+      schema_config:
+        configs:
+          - from: 2020-10-24
+            store: tsdb
+            object_store: filesystem
+            schema: v13
+            index:
+              prefix: index_
+              period: 24h
+      limits_config:
+        # Keep logs for 28 days (672 hours)
+        retention_period: 672h
+        ingestion_rate_mb: 10
+        ingestion_burst_size_mb: 20
+      ruler:
+        storage:
+          type: local
+          local:
+            directory: /loki/rules
+  tempo_config:
+    content: |
+      server:
+        http_listen_port: 3200
+      distributor:
+        receivers:
+          otlp:
+            protocols:
+              grpc:
+                endpoint: "0.0.0.0:4317"
+      ingester:
+        max_block_duration: 5m
+      compactor:
+        compaction:
+          block_retention: 168h  # 7 days
+      storage:
+        trace:
+          backend: local
+          local:
+            path: /var/tempo/blocks
+          wal:
+            path: /var/tempo/wal
+      # Optional: Disable metrics generator to avoid warnings in single-instance setup
+      # overrides:
+      #   defaults:
+      #     metrics_generator:
+      #       processors: [service-graphs, span-metrics]
+  otel_config:
+    content: |
+      # Receivers - how collector receives telemetry data
+      receivers:
+        otlp:
+          protocols:
+            grpc:
+              endpoint: "0.0.0.0:4317"
+            http:
+              endpoint: "0.0.0.0:4318"
+      # Processors - how telemetry data is processed
+      processors:
+        batch:
+          timeout: 1s
+          send_batch_size: 1024
+      # Exporters - where telemetry data is sent
+      exporters:
+        # Send traces to Tempo via OTLP
+        otlp:
+          endpoint: "tempo:4317"
+          tls:
+            insecure: true
+        # Debug exporter for local troubleshooting
+        debug:
+          verbosity: detailed
+      # Extensions - additional functionality
+      extensions:
+        health_check:
+        pprof:
+          endpoint: :1888
+        zpages:
+          endpoint: :55679
+      # Service configuration
+      service:
+        extensions: [pprof, zpages, health_check]
+        pipelines:
+          traces:
+            receivers: [otlp]
+            processors: [batch]
+            exporters: [otlp, debug]
+  grafana_datasources:
+    content: |
+      apiVersion: 1
+      datasources:
+        - name: Prometheus
+          uid: prometheus
+          type: prometheus
+          access: proxy
+          url: http://prometheus:9090
+          isDefault: false
+          editable: true
+        - name: Loki
+          uid: loki
+          type: loki
+          access: proxy
+          url: http://loki:3100
+          isDefault: false
+          editable: true
+        - name: Tempo
+          uid: tempo
+          type: tempo
+          access: proxy
+          url: http://tempo:3200
+          isDefault: false
+          editable: true
+          jsonData:
+            tracesToLogsV2:
+              datasourceUid: 'loki'
+              tags:
+                - key: 'service.name'
+                  value: 'app'
+              spanStartTimeShift: '-1h'
+              spanEndTimeShift: '1h'
+              filterByTraceID: true
+              filterBySpanID: true
+              customQuery: false
+            tracesToMetrics:
+              datasourceUid: 'prometheus'
+            serviceMap:
+              datasourceUid: 'prometheus'
+            nodeGraph:
+              enabled: true
