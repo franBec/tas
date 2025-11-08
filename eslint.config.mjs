@@ -33,6 +33,7 @@ export default [
       // Infrastructure
       ".{idea,git,cache,output,temp}/**",
       "public/**",
+      "src/app/global-error.tsx",
       "src/resources/**",
       "src/instrumentation.ts",
 

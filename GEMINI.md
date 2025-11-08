@@ -2,27 +2,78 @@
 
 ## Package manager
 
-`pnpm` is preferred over `npm`
+`pnpm` is preferred over `npm`.
 
 ## Commits
 
-- Don't commit unless explicitly asked for it
-- Don't push
-- Run the format script (`pnpm format`) before any commit to ensure consistent code style
-- Include a summary of changes in commit messages for better documentation
-  - When doing this summary, avoid analyzing large and complex files such as `*.svg` files and `pnpm-lock.yaml`
+### General Rules
+
+- Don't commit unless explicitly asked for it.
+- Don't push.
+- Run the format script (`pnpm format`) before any commit to ensure consistent code style.
+- Include a summary of changes in commit messages for better documentation.
+  - When doing this summary, avoid analyzing large and complex files such as `*.svg` files and `pnpm-lock.yaml`.
+
+### Commit Process
+
+To ensure commits are consistent, safe, and follow project conventions, I use this step-by-step process:
+
+1.  **Check Current State:** I start with `git status` to get a clear overview of all modified, new, and staged files. This helps me understand the scope of the changes.
+
+2.  **Stage All Changes:** I use `git add .` to stage all current changes. This ensures that everything in the working directory is prepared for the commit, as requested.
+
+3.  **Verify Staging:** I run `git status` again to confirm that all files have been successfully staged and that there are no unexpected changes left behind.
+
+4.  **Analyze Commit History:** To match the project's style, I execute `git log -n 3` to review the most recent commit messages. This helps me adopt the established conventions for format (e.g., `feat:`, `fix:`), tone, and level of detail.
+
+5.  **Draft a Descriptive Message:** Based on the staged files and the historical style, I construct a clear commit message. It typically includes:
+
+    - A concise summary line describing the main purpose of the commit.
+    - A body (if necessary) with bullet points detailing the key changes.
+
+6.  **Execute the Commit:** I use `git commit -m "..."` to create the commit with the drafted message.
+
+7.  **Final Confirmation:** I run `git status` one last time to ensure the commit was successful and the working directory is clean.
+
+This structured approach prevents inconsistencies and ensures that every commit is deliberate and well-documented.
+
+### Squash Commits
+
+If you need to squash the last N commits into one, and interactive rebase is not feasible (e.g., due to terminal editor issues), follow this procedure:
+
+1.  **Abort any ongoing rebase:**
+    ```bash
+    git rebase --abort
+    ```
+2.  **Soft reset the last N commits:** This will uncommit the changes but keep them staged. Replace `N` with the number of commits you want to squash (e.g., `HEAD~2` for the last two commits).
+    ```bash
+    git reset --soft HEAD~N
+    ```
+3.  **Retrieve commit messages:** Get the messages from the commits you just reset. This helps in crafting a comprehensive new commit message. Replace `N` with the number of commits you squashed.
+    ```bash
+    git log -n N --pretty=%B HEAD@{1}
+    ```
+4.  **Create a new combined commit:** Craft a new commit message that summarizes the squashed commits, and then create the new commit.
+    ```bash
+    git commit -m "Your combined commit message"
+    ```
+5.  **Verify the changes:**
+    ```bash
+    git status
+    git log -n 1
+    ```
 
 ## Comments
 
-Avoid adding code comments unless absolutely necessary for clarity
+Avoid adding code comments unless absolutely necessary for clarity.
 
 ## Components
 
-Prefer using shadcn components when possible for consistent UI
+Prefer using shadcn components when possible for consistent UI.
 
 ## Verification
 
-Avoid starting a development server to verify changes. Usually there's going to be a development server already running at port 3000
+Avoid starting a development server to verify changes. Usually there's going to be a development server already running at port 3000.
 
 ## **React Component Testing Approach**
 
@@ -179,10 +230,10 @@ it("should have proper accessibility attributes", () => {
 
 #### **Use Semantic Queries (Priority Order)**
 
-1. `getByRole()` - Best for accessibility
-2. `getByLabelText()` - Form elements
-3. `getByText()` - Visible text
-4. `getByTestId()` - Last resort
+1. `getByRole()` - Best for accessibility.
+2. `getByLabelText()` - Form elements.
+3. `getByText()` - Visible text.
+4. `getByTestId()` - Last resort.
 
 #### **Handle Mixed Content with Regex**
 
@@ -310,12 +361,12 @@ it("should hide content when user is not authenticated", () => {});
 
 ### **9. Coverage Goals**
 
-- **Happy Path**: Normal usage scenarios
-- **Edge Cases**: Empty states, loading, errors
-- **User Interactions**: All clickable/interactive elements
-- **Props Variants**: All different prop combinations
-- **Accessibility**: ARIA attributes, semantic HTML
-- **Responsive**: Key responsive behavior (if testable)
+- **Happy Path**: Normal usage scenarios.
+- **Edge Cases**: Empty states, loading, errors.
+- **User Interactions**: All clickable/interactive elements.
+- **Props Variants**: All different prop combinations.
+- **Accessibility**: ARIA attributes, semantic HTML.
+- **Responsive**: Key responsive behavior (if testable).
 
 ## **TypeScript Utility/Module Testing Approach**
 
@@ -701,14 +752,14 @@ describe("Type Safety", () => {
 
 ### **9. Testing Best Practices for .ts Files**
 
-- Test the public API, not internals
-- Cover all branches and edge cases
-- Test error conditions explicitly
-- Use descriptive test names that explain the scenario
-- Group related tests with nested describe blocks
-- Test integration between functions
-- Validate data integrity and type safety
-- Include performance tests for critical functions
+- Test the public API, not internals.
+- Cover all branches and edge cases.
+- Test error conditions explicitly.
+- Use descriptive test names that explain the scenario.
+- Group related tests with nested describe blocks.
+- Test integration between functions.
+- Validate data integrity and type safety.
+- Include performance tests for critical functions.
 
 ### **10. Common Patterns by Utility Type**
 
